@@ -1,17 +1,26 @@
-#include <stdio.h>
 #include <ctype.h>
-char buf[1<<20] = {};
-int main() {
-    fread(buf, 1, 1<<20, stdin);
-    int out = 0;
-    for(int i = 0; buf[i]; i++) {
-        if(buf[i] == '.') {
-            if(buf[i+1] == ' ' && buf[i+2] == ' ')
-                out++;
-            else if(buf[i+1] == '\n' || buf[i+1] == '\0')
-                out++;
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+ 
+#define MAXS 128
+ 
+int main(void) {
+ 
+    char curr[MAXS];
+    while(gets(curr)) {
+        int i = 0;
+        while(isspace(curr[i])) { i++; }
+ 
+        int j = strlen(curr)-1;
+        while(isspace(curr[j])) { j--; }
+ 
+        for(int k = i; k <= j; k++) {
+            printf("%c", curr[k]);
         }
+        printf("\n");
     }
-    printf("%d\n", out);
+ 
+ 
     return 0;
 }
