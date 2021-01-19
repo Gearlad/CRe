@@ -1,95 +1,64 @@
-#include "computeGrade.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "GPA_calculation.h"
  
-int max(int a, int b);
+double GPA_val(char score[]) {
+    double ret = 0.0;
  
-void computeGrade(Classes classes[2]) {
- 
-    double classAverage[2][18];
- 
- 
-    for(int i = 0; i < 2; i++) {
-        for(int j = 0; j < 18; j++) {
-            classAverage[i][j] = 0.0;
-            for(int k = 0; k < classes[i].numStudent; k++) {
-                classAverage[i][j] += classes[i].student[k].score[j].rawScore;
-            }
-            classAverage[i][j] /= classes[i].numStudent+0.0;
-        }
+    switch(score[0]) {
+        case 'A':
+            ret = 4.0; break;
+        case 'B':
+            ret = 3.0; break;
+        case 'C':
+            ret = 2.0; break;
     }
  
-    for(int i = 0; i < 18; i++) {
-        for(int j = 0; j < classes[0].numStudent; j++) {
-            classes[0].student[j].score[i].scaledScore = -1;
-        }
-        for(int j = 0; j < classes[1].numStudent; j++) {
-            classes[1].student[j].score[i].scaledScore = -1;
-        }
-    }
+    if(score[1] == '+') ret += .3;
+    else if(score[1] == '-') ret -= .3;
  
-    for(int i = 0; i < 18; i++) {
-        double ratio = 1.0;
- 
-        if(classAverage[0][i] > classAverage[1][i]) {
-            ratio = classAverage[0][i] / classAverage[1][i];
-            for(int j = 0; j < classes[1].numStudent; j++) {
-                classes[1].student[j].score[i].scaledScore = classes[1].student[j].score[i].rawScore * ratio;
-                if(classes[1].student[j].score[i].scaledScore > 100.0) {
-                    classes[1].student[j].score[i].scaledScore = 100.0;
-                }
-            }
-        }
- 
-        else {
-            ratio = classAverage[1][i] / classAverage[0][i];
-            for(int j = 0; j < classes[0].numStudent; j++) {
-                classes[0].student[j].score[i].scaledScore = classes[0].student[j].score[i].rawScore * ratio;
-                if(classes[0].student[j].score[i].scaledScore > 100.0) {
-                    classes[0].student[j].score[i].scaledScore = 100.0;
-                }
-            }
-        }
-    }
- 
- 
-    for(int i = 0; i < 2; i++) {
-        for(int j = 0; j < classes[i].numStudent; j++) {
-            classes[i].student[j].finalScore = 0.0;
-            for(int k = 0; k < 18; k++) {
-                double quizScore = classes[i].student[j].score[k].scaledScore == -1 ? classes[i].student[j].score[k].rawScore: classes[i].student[j].score[k].scaledScore;
-                classes[i].student[j].finalScore += quizScore;
-            }
-            classes[i].student[j].finalScore *= .06;
-            if(classes[i].student[j].finalScore > 100.0) classes[i].student[j].finalScore = 100.0;
-            printf("%s %f\n", classes[i].student[j].id, classes[i].student[j].finalScore);
-        }
-    }
- 
-#ifdef DEBUG
-    /*for(int i = 0; i < 2; i++) {
-        for(int j = 0; j < 18; j++) {
-            printf("Class %d average quiz %d: %f\n", i, j, classAverage[i][j]);
-        }
-    }
- 
-    for(int i = 0; i < classes[0].numStudent; i++) {
-        for(int j = 0; j < 18; j++) {
-            printf("%f\n", classes[0].student[i].score[j].scaledScore);
-        }
-    }
- 
-    for(int i = 0; i < classes[1].numStudent; i++) {
-        for(int j = 0; j < 18; j++) {
-            printf("%f\n", classes[1].student[i].score[j].scaledScore);
-        }
-    }*/
- 
-    printf("\n");
-#endif
- 
+    return ret;
 }
  
-int max(int a, int b) {
-    if(a > b) return a;
-    return b;
+int cmp(const void *x, const void *y) {
+    struct Student *a = (struct Student *)x;
+    struct Student *b = (struct Student *)y;
+    if(a->GPA < b->GPA) return 1;
+    else if(a->GPA > b->GPA) return -1;
+    return 0;
+}
+ 
+void GPA_calculation(struct Student all_student[], int N) {
+ 
+    int numPrizes = ((N-1)/20)+1;
+    int indeces[N];
+ 
+    for(int i = 0; i < N; i++) {
+        all_student[i].GPA = 0.0;
+        all_student[i].N_credit = 0;
+ 
+        double temp_GPA;
+ 
+        for(int j = 0; j < all_student[i].N_class; j++) {
+            temp_GPA = GPA_val(all_student[i].all_class[j].score);
+            temp_GPA *= all_student[i].all_class[j].academic_credit;
+            all_student[i].GPA += temp_GPA;
+            all_student[i].N_credit += all_student[i].all_class[j].academic_credit;
+        }
+ 
+        all_student[i].GPA /= all_student[i].N_credit;
+    }
+ 
+ 
+    qsort(all_student, N, sizeof(struct Student), cmp);
+    int rank = 1;
+    for(int i = 0; i < N; i++) {
+        if(numPrizes <= 0) break;
+        if(all_student[i].N_credit >= 15 && all_student[i].GPA >= 3.38) {
+            printf("%d %s %f\n", rank, all_student[i].name, all_student[i].GPA);
+        }
+        rank++;
+        numPrizes--;
+    }
 }
