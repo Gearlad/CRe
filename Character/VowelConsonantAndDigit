@@ -1,0 +1,45 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdbool.h>
+ 
+bool contains(char* a, int size, char b);
+ 
+main() {
+ 
+    char vowelsUpper[5] = {'A', 'E', 'I', 'O', 'U'};
+    char vowelsLower[5] = {'a', 'e', 'i', 'o', 'u'};
+ 
+    int digits = 0, letters = 0, vowels = 0, consonants = 0;
+ 
+    char c;
+ 
+    while(true) {
+        scanf("%c", &c);
+        if(c == '\n') break;
+ 
+        bool vowel = contains(vowelsUpper, 5, c) ||
+        contains(vowelsLower, 5, c);
+        if(vowel) {
+            vowels++;
+            continue;
+        }
+ 
+        if((c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z')
+        && vowel == false) {
+            consonants++;
+            continue;
+        }
+        else if(c >= '0' && c <= '9') digits++;
+    }
+ 
+    letters = vowels + consonants;
+    printf("%d %d %d %d", digits, letters, vowels, consonants);
+ 
+}
+ 
+bool contains(char* a, int size, char b) {
+    for(int i = 0; i < size; i++) {
+        if(a[i] == b) return true;
+    }
+    return false;
+}
