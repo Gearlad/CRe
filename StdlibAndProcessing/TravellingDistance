@@ -1,0 +1,52 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+ 
+#define MAXN 100000
+ 
+typedef struct city {
+    int x, y;
+} city;
+ 
+city c[MAXN];
+ 
+ 
+int dist(int x1, int y1, int x2, int y2) {
+     return pow((x2-x1), 2) + pow((y2-y1), 2);
+}
+ 
+int cmp(const void * a, const void * b) {
+    city *cityA = (city *)a;
+    city *cityB = (city *)b;
+ 
+    int distA = dist(cityA->x, cityA->y, 0, 0);
+    int distB = dist(cityB->x, cityB->y, 0, 0);
+ 
+    return !((distA < distB) ||
+    ((distA == distB) && (cityA->x < cityB->x)) ||
+    ((distA == distB) && (cityA->x) == (cityB->x) && (cityA->y < cityB->y)));
+}
+ 
+int main(void) {
+    int count = 0;
+    while(scanf("%d%d", &c[count].x, &c[count].y) != EOF) {
+        count++;
+    }
+ 
+    qsort(c, count, sizeof(city), cmp);
+ 
+#ifdef DEBUG
+    for(int i = 0; i < count; i++) {
+        printf("city %d: %d, %d\n", i, c[i].x, c[i].y);
+    }
+#endif
+ 
+    int res = dist(c[0].x, c[0].y, 0, 0);
+    for(int i = 1; i < count; i++) {
+        res += dist(c[i].x, c[i].y, c[i-1].x, c[i-1].y);
+    }
+ 
+    printf("%d\n", res);
+ 
+    return 0;
+}
